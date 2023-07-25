@@ -20,7 +20,7 @@ module "publicip" {
   source              = "./module/publicip"
   name                = var.public_ip_name
   resource_group_name = data.azurerm_resource_group.ta4naya.name
-  sku                 = Basic
+  sku                 = "Basic"
   allocation_method   = "Dynamic"
 }
 module "network" {
