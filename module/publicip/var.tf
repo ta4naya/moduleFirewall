@@ -10,8 +10,8 @@ variable "resource_group_name" {
 
 variable "sku" {
   description = "(Optional) The SKU of the Public IP. Accepted values are Basic and Standard. Defaults to Basic."
-  type = string
-  default = "Basic"
+  type        = string
+  default     = "Basic"
 }
 
 variable "allocation_method" {
@@ -20,16 +20,16 @@ variable "allocation_method" {
 
 variable "ip_version" {
   description = "(Optional) The IP Version to use, IPv6 or IPv4."
-  default = "IPv4"
+  default     = "IPv4"
 }
 
 variable "domain_name_label" {
   description = "(Optional) Label for the Domain Name. Will be used to make up the FQDN. If a domain name label is specified, an A DNS record is created for the public IP in the Microsoft Azure DNS system."
-  default = ""
+  default     = ""
 }
 
 variable "tags" {
   description = "(Optional) A mapping of tags to assign to the resource."
   type        = map(string)
-  default = {}
+  default     = {}
 }

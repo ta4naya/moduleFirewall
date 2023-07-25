@@ -10,7 +10,7 @@ output "azurerm_subnet_public" {
   value = azurerm_subnet.public.name
 }
 output "azurerm_subnet_private" {
-  value =  azurerm_subnet.private.name
+  value = azurerm_subnet.private.name
 }
 output "azurerm_subnet_public_cidr" {
   value = azurerm_subnet.public.address_prefixes

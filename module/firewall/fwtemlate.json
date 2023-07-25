@@ -81,7 +81,7 @@
       }
     },
     "nicName": {
-      "type": "String", 
+      "type": "String",
       "defaultValue": "NIC1-FGWCSCSCHUB0001",
       "metadata": {
         "description": "The external Interface"
@@ -212,7 +212,7 @@
       "apiVersion": "2020-06-01",
       "name": "[parameters('nicName1')]",
       "location": "[variables('location')]",
-      
+
       "properties": {
         "ipConfigurations": [
           {
@@ -223,7 +223,7 @@
               "subnet": {
                 "id": "[variables('subnet2Ref')]"
               }
-              
+
             }
           }
         ],
@@ -267,7 +267,7 @@
             "name": "[parameters('diskName')]",
             "managedDisk": {
                 "storageAccountType":"[parameters('managedDisk')]"
-                
+
                 },
             "caching": "ReadWrite",
             "diskSizeGB": "9",

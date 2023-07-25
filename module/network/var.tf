@@ -30,7 +30,7 @@ variable "location" {
   type        = string
   description = "VNET location"
 }
-variable "vnet"{
-      type        = string
+variable "vnet" {
+  type        = string
   description = "VNET naame"
 }
