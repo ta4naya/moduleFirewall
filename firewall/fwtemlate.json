@@ -1,0 +1,297 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-08-01/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "virtualNetworkName": {
+      "type": "String",
+      "defaultValue": "gwcschubsbh-vnet001",
+      "metadata": {
+        "description": "Virtual Network Name for the existing vNet"
+      }
+    },
+    "Subnet1Name": {
+      "type": "String",
+      "defaultValue": "gwcschubsbhvnet001-sub002",
+      "metadata": {
+        "description": "Subnet 1 Name"
+      }
+    },
+
+    "Subnet2Name": {
+      "type": "String",
+      "defaultValue": "gwcschubsbhvnet001-sub001",
+      "metadata": {
+        "description": "Subnet 2 Name"
+      }
+    },
+    "Subnet1IP": {
+      "type": "String",
+      "defaultValue": "100.80.0.68",
+      "metadata": {
+        "description": "Host IP in Subnet 1"
+      }
+    },
+    "Subnet2IP": {
+      "type": "String",
+      "defaultValue": "100.80.0.69",
+      "metadata": {
+        "description": "Host IP in Subnet 2"
+      }
+    },
+    "Subnet3IP": {
+        "type": "String",
+        "defaultValue": "100.80.0.5",
+        "metadata": {
+          "description": "Host IP in Internal subnet"
+        }
+      },
+    "vmName": {
+      "type": "String",
+      "defaultValue": "FGWCSCSHUB001",
+      "metadata": {
+        "description": "Name for the Virtual Machine."
+      }
+    },
+    "adminUsername": {
+      "defaultValue": "sy-admin",
+      "type": "String",
+      "metadata": {
+        "description": "Username for the admin "
+      }
+    },
+    "adminPassword": {
+      "type": "SecureString",
+      "defaultValue": "Star1234567890#",
+      "metadata": {
+        "description": "Password for the Virtual Machine - if password authentication was chosen."
+      }
+    },
+    "publicIPAddressName": {
+      "type": "String",
+      "defaultValue": "PIP-FGWCSCSHUB0001NIC2-001",
+      "metadata": {
+        "description": "User chose azure Lable for the Public IP Address (not the actual IP address)"
+      }
+    },
+    "publicIPDnsName": {
+      "type": "String",
+      "defaultValue": "ta4nayafirewall",
+      "metadata": {
+        "description": "Unique DNS Prefix for the Public IP used to access the Virtual Machine."
+      }
+    },
+    "nicName": {
+      "type": "String", 
+      "defaultValue": "NIC1-FGWCSCSCHUB0001",
+      "metadata": {
+        "description": "The external Interface"
+      }
+    },
+    "nicName1": {
+      "type": "String",
+      "defaultValue": "NIC2-FGWCSCSCHUB0001",
+      "metadata": {
+        "description": "The internal network Interface"
+      }
+    },
+    "diskName": {
+      "type": "String",
+      "defaultValue": "FGWCSCSCHUB0001-disk1",
+      "metadata": {
+        "description": "Name for the managed disk"
+      }
+    },
+    "availSetName": {
+      "type": "String",
+      "defaultValue": "AVSCHSBHGWC0001",
+      "metadata": {
+        "description": "Name for the Availability Set"
+      }
+    },
+    "managedDisk": {
+      "defaultValue": "Premium_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Premium_LRS",
+        "StandardSSD_LRS"
+      ],
+      "type": "String",
+      "metadata": {
+        "description": "The type of storage account needed for the managed disk. Please use premium for improved uptime."
+      }
+    },
+    "vmSize": {
+      "defaultValue": "Standard_DS3_v2",
+      "allowedValues": [
+        "Standard_DS3_v2",
+        "Standard_D3_v2"
+      ],
+      "type": "String",
+      "metadata": {
+        "description": "Size of the Virtual Machine. Please use DS versions for premium SSD support."
+      }
+    }
+
+  },
+  "variables": {
+    "location": "[resourceGroup().location]",
+    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+    "subnet1Ref": "[concat(variables('vnetID'),'/subnets/', parameters('Subnet1Name'))]",
+    "subnet2Ref": "[concat(variables('vnetID'), '/subnets/', parameters('Subnet2Name'))]",
+    "pubIpRef": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddressName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Compute/availabilitySets",
+      "apiVersion": "2019-07-01",
+      "name": "[parameters('availSetName')]",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "Aligned"
+      },
+      "properties": {
+        "platformFaultDomainCount": "2",
+        "platformUpdateDomainCount": "5"
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('publicIPAddressName')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "publicIPAllocationMethod": "static",
+        "dnsSettings": {
+          "domainNameLabel": "[parameters('publicIPDnsName')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('nicName')]",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', parameters('publicIPAddressName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "primary": true,
+              "privateIPAllocationMethod": "static",
+              "privateIPAddress": "[parameters('Subnet1IP')]",
+              "subnet": {
+                "id": "[variables('subnet1Ref')]"
+              },
+              "publicIPAddress": {
+                "id": "[variables('pubIpRef')]"
+              }
+            }
+          },
+          {
+            "name": "ipconfig2",
+            "properties": {
+              "primary": false,
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[parameters('Subnet2IP')]",
+              "subnet": {
+                "id": "[variables('subnet1Ref')]"
+              }
+
+
+            }
+          }
+        ],
+        "enableIPForwarding": true
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('nicName1')]",
+      "location": "[variables('location')]",
+      
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "static",
+              "privateIPAddress": "[parameters('Subnet3IP')]",
+              "subnet": {
+                "id": "[variables('subnet2Ref')]"
+              }
+              
+            }
+          }
+        ],
+        "enableIPForwarding": true
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('vmName')]",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/',parameters('nicName'))]",
+        "[concat('Microsoft.Network/networkInterfaces/',parameters('nicName1'))]"
+      ],
+      "plan": {
+        "name": "asav-azure-byol",
+        "product": "cisco-asav",
+        "publisher": "cisco"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets/', parameters('availSetName'))]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('vmName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "cisco",
+            "offer": "cisco-asav",
+            "sku": "asav-azure-byol",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "[parameters('diskName')]",
+            "managedDisk": {
+                "storageAccountType":"[parameters('managedDisk')]"
+                
+                },
+            "caching": "ReadWrite",
+            "diskSizeGB": "9",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "properties": {
+                "primary": true
+              },
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('nicName'))]"
+            },
+            {
+              "properties": {
+                "primary": false
+              },
+
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('nicName1'))]"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
