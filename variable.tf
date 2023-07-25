@@ -20,7 +20,7 @@ variable "cidr_subnet_private" {
   default = ["100.80.0.0/26"]
 }
 variable "public_ip_name" {
-  description = "PIPNAME"
+  description = "PIPNAME    "
   type        = string
   default = "PIP-FGWCSCSHUB0001NIC2-001"
 }
